@@ -1,0 +1,20 @@
+Anatomy-Aware Masked Image Modeling for Self-Supervised Learning on 3D Brain MRI
+Copyright 2026 Yeonwoo Kim, Won Hee Lee (Kyung Hee University)
+
+Licensed under the Apache License, Version 2.0. See LICENSE for the full text.
+
+This product includes software developed by third parties:
+
+1. DAMT — Domain Aware Multi-Task Pre-Training of 3D Swin Transformer for
+   Brain MRI (Kim, Kim & Park, ACCV 2024, pp. 2124-2144).
+   https://arxiv.org/abs/2410.00410  ·  Apache License 2.0
+   The multi-task pre-training framework in main.py, models.py, datasets.py,
+   loss.py and ops.py derives from this work.
+
+2. MONAI (Project MONAI).
+   https://github.com/Project-MONAI/MONAI  ·  Apache License 2.0
+   swin_unetr.py is adapted from MONAI's SwinUNETR implementation.
+
+3. DINO (Facebook, Inc. and its affiliates).
+   https://github.com/facebookresearch/dino  ·  Apache License 2.0
+   utils.py is adapted from DINO's misc utilities.
