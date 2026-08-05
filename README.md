@@ -131,7 +131,7 @@ The evaluation root needs a `participants.tsv` with a `group` column; subjects l
 
 | | |
 |---|---|
-| **Upstream** | J. Kim, M. Kim, and H. Park, "Domain Aware Multi-Task Pre-Training of 3D Swin Transformer for Brain MRI," *ACCV 2024*, pp. 2124–2144. ([arXiv:2410.00410](https://arxiv.org/abs/2410.00410)) — this repository forks [DAMT](https://github.com/jongdory/DAMT); the training pipeline, model, and seven pretext tasks are the original DAMT code, and the only change is `AtlasGuidedMaskGenerator` in `main.py`, which replaces DAMT's random MIM masking with anatomy-aware region masking. |
+| **Upstream** | J. Kim, M. Kim, and H. Park, "Domain Aware Multi-Task Pre-Training of 3D Swin Transformer for Brain MRI," *ACCV 2024*, pp. 2124–2144. ([arXiv:2410.00410](https://arxiv.org/abs/2410.00410)) — this repository forks [DAMT](https://github.com/jongdory/DAMT). |
 
 ```bibtex
 @InProceedings{Kim_2024_ACCV,
