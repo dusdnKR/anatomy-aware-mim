@@ -1,7 +1,5 @@
 # Anatomy-Aware Masked Image Modeling for Self-Supervised Learning on 3D Brain MRI
 
-Reference implementation for the paper
-
 > **Anatomy-Aware Masked Image Modeling for Self-Supervised Learning on 3D Brain MRI**
 > Yeonwoo Kim, Won Hee Lee
 > Department of Software Convergence, Kyung Hee University
@@ -12,48 +10,6 @@ Reference implementation for the paper
   <br>
   <em>(A) standard random MIM &nbsp;·&nbsp; (B) anatomy-aware MIM</em>
 </p>
-
-## Overview
-
-Masked image modeling (MIM) hides part of an input volume and asks the encoder
-to restore it. Applied to brain MRI in the standard way, the mask is a set of
-independently sampled cubic patches, so the missing voxels are almost always
-surrounded by visible tissue — the model can solve the task by interpolating
-local intensity, without ever reasoning about how brain regions relate to one
-another.
-
-**Anatomy-aware MIM** replaces that random mask with a region-level one. Each
-patch is assigned the dominant label of its co-registered `aparc+aseg`
-parcellation, patches are grouped by anatomical region, and whole regions are
-then masked until the same 75% budget is reached. The masked volume is now
-anatomically coherent rather than scattered, so restoring it requires
-long-range inter-regional context. The change costs no extra parameters and no
-extra supervision, and it drops into any MIM pipeline: when a subject has no
-atlas available, the generator falls back to standard random masking.
-
-Masking is the only thing that changes. It sits inside a multi-task
-self-supervised framework where a 3D Swin Transformer (depths `[2, 2, 18, 2]`,
-embedding dim 48) is trained on `128³` volumes at 1.25 mm isotropic resolution
-with seven pretext tasks optimised jointly:
-
-| Task | Head | Target |
-|---|---|---|
-| `rot` | linear | which of 10 rigid 90° rotations was applied |
-| `loc` | linear | which cell of a 3×3 grid a local crop came from |
-| `contrastive` | linear + NT-Xent | agreement between two augmented global views |
-| `atlas` | conv decoder | per-voxel `aparc+aseg` label (brain anatomy) |
-| `feat` | conv + linear | cortical morphology descriptors |
-| `texture` | conv + linear | GLCM / GLSZM radiomics descriptors |
-| `mim` | pixel-shuffle decoder | masked voxels — **random or anatomy-aware** |
-
-Task weights are not tuned by hand: each task carries a learnable
-log-variance and is weighted by uncertainty ([Kendall et al., CVPR
-2018](https://openaccess.thecvf.com/content_cvpr_2018/html/Kendall_Multi-Task_Learning_Using_CVPR_2018_paper.html)).
-
-Evaluation freezes the encoder, pools the final transformer stage into a 768-d
-representation, and fits a single linear layer under 5-fold cross-validation —
-the standard linear probing protocol, which measures the representation itself
-rather than the capacity of the classifier.
 
 ## Repository layout
 
