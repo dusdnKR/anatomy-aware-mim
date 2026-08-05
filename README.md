@@ -1,15 +1,42 @@
-# Anatomy-Aware Masked Image Modeling for Self-Supervised Learning on 3D Brain MRI
+<div align="center">
 
-> **Anatomy-Aware Masked Image Modeling for Self-Supervised Learning on 3D Brain MRI**
-> Yeonwoo Kim, Won Hee Lee
-> Department of Software Convergence, Kyung Hee University
-> *Conference on Cognitive Computational Neuroscience (CCN), 2026.*
+# Anatomy-Aware MIM
 
-<p align="center">
-  <img src="assets/figure1.png" width="100%">
-  <br>
-  <em>(A) standard random MIM &nbsp;·&nbsp; (B) anatomy-aware MIM</em>
-</p>
+**Anatomy-Aware Masked Image Modeling for Self-Supervised Learning on 3D Brain MRI**
+
+![Conference](https://img.shields.io/badge/CCN-2026-0A66C2?style=flat-square)&nbsp;
+[![PyTorch](https://img.shields.io/badge/PyTorch-2.0+-EE4C2C?style=flat-square&logo=pytorch&logoColor=white)](https://pytorch.org/)&nbsp;
+[![Python](https://img.shields.io/badge/Python-3.10+-3776AB?style=flat-square&logo=python&logoColor=white)](https://www.python.org/)&nbsp;
+[![License](https://img.shields.io/badge/License-Apache_2.0-green?style=flat-square)](LICENSE)
+
+<img src="assets/figure1.png" alt="Comparison of standard random masked image modeling (A) against anatomy-aware masked image modeling (B): random masking scatters masked voxel patches uniformly across the brain, while anatomy-aware masking uses the Desikan-Killiany atlas to mask whole anatomical regions." width="100%">
+<br>
+<em>(A) standard random MIM &nbsp;·&nbsp; (B) anatomy-aware MIM</em>
+
+</div>
+
+---
+
+## Overview
+
+Masked image modeling (MIM) pretrains a vision encoder by reconstructing randomly masked patches, but uniform random masking gives every patch — a sliver of cortex, a strip of white matter — the same chance of being hidden, regardless of anatomy. **Anatomy-aware MIM** masks by cortical parcellation instead: whole anatomical regions are masked together, so the encoder has to recover them from long-range inter-regional context rather than local interpolation.
+
+This repository pretrains a 3D Swin Transformer encoder on T1-weighted brain MRI with seven pretext tasks trained jointly — masked-image reconstruction, rotation and patch-location prediction, contrastive learning, anatomy segmentation, and morphology/texture regression — then evaluates the frozen encoder with linear probing on a downstream classification task.
+
+## Paper
+
+> **Y. Kim** and W. H. Lee, "Anatomy-Aware Masked Image Modeling for Self-Supervised Learning on 3D Brain MRI," to appear in *Conference on Cognitive Computational Neuroscience (CCN)*, 2026.
+
+## Method
+
+| Strategy | Masking |
+|:--------:|---------|
+| **Random** | `MaskGenerator` — uniform random masking of 16³-voxel patches (≈75% budget); the standard MIM baseline, ignores anatomy |
+| **Atlas** | `AtlasGuidedMaskGenerator` — every patch is assigned its dominant `aparc+aseg` label, and whole anatomical regions are masked until the same ≈75% budget is reached |
+
+`DataAugmentation` in `main.py` selects between the two via `--mim-mask-mode {random,atlas}`.
+
+Both conditions optimize the same seven pretext tasks jointly, with task loss weights learned automatically by uncertainty weighting (Kendall et al., CVPR 2018): image rotation prediction, patch-location prediction, a contrastive NT-Xent objective, anatomy segmentation, morphology regression, texture regression, and the masked-image reconstruction task itself.
 
 ## Repository layout
 
@@ -25,11 +52,9 @@ linear_probe.py    frozen-encoder linear probing with k-fold cross-validation
 extract/           one-off extraction of the tabular pretext targets
 ```
 
-The two masking strategies live in `main.py` as `MaskGenerator` (random
-baseline) and `AtlasGuidedMaskGenerator` (anatomy-aware); `DataAugmentation`
-picks between them from `--mim-mask-mode`.
+## Getting started
 
-## Installation
+### Installation
 
 ```bash
 conda create -n aamim python=3.10 -y
@@ -37,14 +62,11 @@ conda activate aamim
 pip install -r requirements.txt
 ```
 
-Install the [PyTorch](https://pytorch.org/get-started/locally/) build that
-matches your CUDA version first if the default wheel does not suit your setup.
+Install the [PyTorch](https://pytorch.org/get-started/locally/) build that matches your CUDA version first if the default wheel does not suit your setup.
 
-## Data layout
+### Data
 
-Each subject is a directory holding a brain-extracted T1-weighted volume and
-its cortical parcellation, as produced by a FreeSurfer-style pipeline
-(e.g. FastSurfer):
+Each subject is a directory holding a brain-extracted T1-weighted volume and its cortical parcellation, as produced by a FreeSurfer-style pipeline (e.g. FastSurfer):
 
 ```
 <data-path>/
@@ -57,21 +79,20 @@ its cortical parcellation, as produced by a FreeSurfer-style pipeline
   results/                          written by extract/ (see below)
 ```
 
-Passing `--data <name>` restricts training to the subject directories listed in
-`data/<name>.txt` (or `<data-path>/<name>.txt`), one subject per line.
+Passing `--data <name>` restricts training to the subject directories listed in `data/<name>.txt` (or `<data-path>/<name>.txt`), one subject per line.
 
-## Usage
+### Pre-computing pretext targets
 
-**1 — Pre-compute the tabular pretext targets.** The morphology and texture
-tasks regress per-subject descriptors that are too slow to derive on the fly,
-so they are extracted once into `<data-path>/results/`:
+The morphology and texture tasks regress per-subject descriptors that are too slow to derive on the fly, so they are extracted once into `<data-path>/results/`:
 
 ```bash
 python extract/gmwmcsf.py --data-path /path/to/dataset
 python extract/extract_all_features.py --data-path /path/to/dataset --workers 32
 ```
 
-**2 — Pre-train.** The two conditions differ in exactly one flag:
+### Pre-training
+
+The two conditions differ in exactly one flag:
 
 ```bash
 # baseline: random masking
@@ -89,15 +110,13 @@ python -m torch.distributed.launch --nproc_per_node=4 main.py \
     --output_dir ./runs/atlas_mim --name atlas_mim
 ```
 
-Optimisation follows AdamW with a base learning rate of `5e-4` scaled linearly
-by the effective batch size, cosine annealing, 5 warm-up epochs, and mixed
-precision. Checkpoints are written to `--output_dir` every `--saveckp_freq`
-epochs, and metrics are streamed to Weights & Biases (`--project`, `--name`;
-`--run-id` resumes an existing run).
+Optimisation follows AdamW with a base learning rate of `5e-4` scaled linearly by the effective batch size, cosine annealing, 5 warm-up epochs, and mixed precision. Checkpoints are written to `--output_dir` every `--saveckp_freq` epochs, and metrics are streamed to Weights & Biases (`--project`, `--name`; `--run-id` resumes an existing run).
 
 Ready-made wrappers for both runs are in [`scripts/`](scripts).
 
-**3 — Linear probe.** Freeze a checkpoint and evaluate it:
+### Linear probing
+
+Freeze a checkpoint and evaluate it:
 
 ```bash
 python linear_probe.py \
@@ -106,26 +125,13 @@ python linear_probe.py \
     --gpu 0
 ```
 
-The evaluation root needs a `participants.tsv` with a `group` column; subjects
-labelled `HC` or `SCZ` are kept, everything else is dropped. Metrics
-(balanced accuracy, AUC, F1, precision, recall) are pooled over the held-out
-folds and written to `--output-dir` as JSON.
+The evaluation root needs a `participants.tsv` with a `group` column; subjects labelled `HC` or `SCZ` are kept, everything else is dropped. Metrics (balanced accuracy, AUC, F1, precision, recall) are pooled over the held-out folds and written to `--output-dir` as JSON.
 
-## Citation
+## Related work
 
-The CCN 2026 proceedings are not published yet; the BibTeX entry will be added
-here once they are available.
-
-## Acknowledgements
-
-This repository is a fork of **DAMT** —
-[github.com/jongdory/DAMT](https://github.com/jongdory/DAMT), Kim, Kim & Park,
-*Domain Aware Multi-Task Pre-Training of 3D Swin Transformer for Brain MRI*,
-[ACCV 2024](https://openaccess.thecvf.com/content/ACCV2024/html/Kim_Domain_Aware_Multi-Task_Pre-Training_of_3D_Swin_Transformer_for_Brain_ACCV_2024_paper.html)
-([arXiv:2410.00410](https://arxiv.org/abs/2410.00410)). The training pipeline,
-model, and seven pretext tasks are the original DAMT code; the only change is
-`AtlasGuidedMaskGenerator` in `main.py`, which replaces DAMT's random MIM
-masking with anatomy-aware region masking.
+| | |
+|---|---|
+| **Upstream** | J. Kim, M. Kim, and H. Park, "Domain Aware Multi-Task Pre-Training of 3D Swin Transformer for Brain MRI," *ACCV 2024*, pp. 2124–2144. ([arXiv:2410.00410](https://arxiv.org/abs/2410.00410)) — this repository forks [DAMT](https://github.com/jongdory/DAMT); the training pipeline, model, and seven pretext tasks are the original DAMT code, and the only change is `AtlasGuidedMaskGenerator` in `main.py`, which replaces DAMT's random MIM masking with anatomy-aware region masking. |
 
 ```bibtex
 @InProceedings{Kim_2024_ACCV,
@@ -138,12 +144,14 @@ masking with anatomy-aware region masking.
 }
 ```
 
-The Swin Transformer backbone comes from
-[MONAI](https://github.com/Project-MONAI/MONAI)'s SwinUNETR, and the
-distributed-training utilities from
-[DINO](https://github.com/facebookresearch/dino) (both already vendored in
-upstream DAMT). See [NOTICE](NOTICE) for details.
+## Acknowledgment
+
+The Swin Transformer backbone comes from [MONAI](https://github.com/Project-MONAI/MONAI)'s SwinUNETR, and the distributed-training utilities from [DINO](https://github.com/facebookresearch/dino) (both already vendored in upstream DAMT). See [NOTICE](NOTICE) for details.
 
 ## License
 
 Apache License 2.0 — see [LICENSE](LICENSE).
+
+## Citation
+
+The CCN 2026 proceedings are not published yet; the BibTeX entry will be added here once they are available.
