@@ -7,9 +7,11 @@ This product includes software developed by third parties:
 
 1. DAMT — Domain Aware Multi-Task Pre-Training of 3D Swin Transformer for
    Brain MRI (Kim, Kim & Park, ACCV 2024, pp. 2124-2144).
-   https://arxiv.org/abs/2410.00410  ·  Apache License 2.0
-   The multi-task pre-training framework in main.py, models.py, datasets.py,
-   loss.py and ops.py derives from this work.
+   https://github.com/jongdory/DAMT  ·  https://arxiv.org/abs/2410.00410
+   Apache License 2.0
+   This repository is a fork of DAMT. main.py, models.py, datasets.py,
+   loss.py and ops.py are the original DAMT code; the only change is
+   AtlasGuidedMaskGenerator in main.py (anatomy-aware MIM masking).
 
 2. MONAI (Project MONAI).
    https://github.com/Project-MONAI/MONAI  ·  Apache License 2.0

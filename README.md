@@ -118,14 +118,31 @@ here once they are available.
 
 ## Acknowledgements
 
-This work builds on **DAMT** — Kim, Kim & Park, *Domain Aware Multi-Task
-Pre-Training of 3D Swin Transformer for Brain MRI*,
+This repository is a fork of **DAMT** —
+[github.com/jongdory/DAMT](https://github.com/jongdory/DAMT), Kim, Kim & Park,
+*Domain Aware Multi-Task Pre-Training of 3D Swin Transformer for Brain MRI*,
 [ACCV 2024](https://openaccess.thecvf.com/content/ACCV2024/html/Kim_Domain_Aware_Multi-Task_Pre-Training_of_3D_Swin_Transformer_for_Brain_ACCV_2024_paper.html)
-([arXiv:2410.00410](https://arxiv.org/abs/2410.00410)) — whose multi-task
-pre-training framework this repository extends. The Swin Transformer backbone
-comes from [MONAI](https://github.com/Project-MONAI/MONAI)'s SwinUNETR, and the
-distributed-training utilities from [DINO](https://github.com/facebookresearch/dino).
-See [NOTICE](NOTICE) for details.
+([arXiv:2410.00410](https://arxiv.org/abs/2410.00410)). The training pipeline,
+model, and seven pretext tasks are the original DAMT code; the only change is
+`AtlasGuidedMaskGenerator` in `main.py`, which replaces DAMT's random MIM
+masking with anatomy-aware region masking.
+
+```bibtex
+@InProceedings{Kim_2024_ACCV,
+    author    = {Kim, Jonghun and Kim, Mansu and Park, Hyunjin},
+    title     = {Domain Aware Multi-Task Pre-Training of 3D Swin Transformer for Brain MRI},
+    booktitle = {Proceedings of the Asian Conference on Computer Vision (ACCV)},
+    month     = {December},
+    year      = {2024},
+    pages     = {2124-2144}
+}
+```
+
+The Swin Transformer backbone comes from
+[MONAI](https://github.com/Project-MONAI/MONAI)'s SwinUNETR, and the
+distributed-training utilities from
+[DINO](https://github.com/facebookresearch/dino) (both already vendored in
+upstream DAMT). See [NOTICE](NOTICE) for details.
 
 ## License
 
