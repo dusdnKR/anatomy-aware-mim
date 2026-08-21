@@ -11,7 +11,7 @@
 
 <img src="assets/figure1.png" alt="Comparison of standard random masked image modeling (A) against anatomy-aware masked image modeling (B): random masking scatters masked voxel patches uniformly across the brain, while anatomy-aware masking uses the Desikan-Killiany atlas to mask whole anatomical regions." width="100%">
 <br>
-<em>(A) standard random MIM &nbsp;·&nbsp; (B) anatomy-aware MIM</em>
+<em>(A) Standard Random MIM &nbsp;·&nbsp; (B) Anatomy-Aware MIM</em>
 
 </div>
 
@@ -22,21 +22,6 @@
 Masked image modeling (MIM) pretrains a vision encoder by reconstructing randomly masked patches, but uniform random masking gives every patch — a sliver of cortex, a strip of white matter — the same chance of being hidden, regardless of anatomy. **Anatomy-aware MIM** masks by cortical parcellation instead: whole anatomical regions are masked together, so the encoder has to recover them from long-range inter-regional context rather than local interpolation.
 
 This repository pretrains a 3D Swin Transformer encoder on T1-weighted brain MRI with seven pretext tasks trained jointly — masked-image reconstruction, rotation and patch-location prediction, contrastive learning, anatomy segmentation, and morphology/texture regression — then evaluates the frozen encoder with linear probing on a downstream classification task.
-
-## Paper
-
-> **Y. Kim** and W. H. Lee, "Anatomy-Aware Masked Image Modeling for Self-Supervised Learning on 3D Brain MRI," to appear in *Conference on Cognitive Computational Neuroscience (CCN)*, 2026.
-
-## Method
-
-| Strategy | Masking |
-|:--------:|---------|
-| **Random** | `MaskGenerator` — uniform random masking of 16³-voxel patches (≈75% budget); the standard MIM baseline, ignores anatomy |
-| **Atlas** | `AtlasGuidedMaskGenerator` — every patch is assigned its dominant `aparc+aseg` label, and whole anatomical regions are masked until the same ≈75% budget is reached |
-
-`DataAugmentation` in `main.py` selects between the two via `--mim-mask-mode {random,atlas}`.
-
-Both conditions optimize the same seven pretext tasks jointly, with task loss weights learned automatically by uncertainty weighting (Kendall et al., CVPR 2018): image rotation prediction, patch-location prediction, a contrastive NT-Xent objective, anatomy segmentation, morphology regression, texture regression, and the masked-image reconstruction task itself.
 
 ## Repository layout
 
@@ -61,8 +46,6 @@ conda create -n aamim python=3.10 -y
 conda activate aamim
 pip install -r requirements.txt
 ```
-
-Install the [PyTorch](https://pytorch.org/get-started/locally/) build that matches your CUDA version first if the default wheel does not suit your setup.
 
 ### Data
 
@@ -129,22 +112,7 @@ The evaluation root needs a `participants.tsv` with a `group` column; subjects l
 
 ## Related work
 
-| | |
-|---|---|
-| **Upstream** | J. Kim, M. Kim, and H. Park, "Domain Aware Multi-Task Pre-Training of 3D Swin Transformer for Brain MRI," *ACCV 2024*, pp. 2124–2144. ([arXiv:2410.00410](https://arxiv.org/abs/2410.00410)) — this repository forks [DAMT](https://github.com/jongdory/DAMT); the training pipeline, model, and seven pretext tasks are the original DAMT code, and the only change is `AtlasGuidedMaskGenerator` in `main.py`, which replaces DAMT's random MIM masking with anatomy-aware region masking. |
-
-```bibtex
-@InProceedings{Kim_2024_ACCV,
-    author    = {Kim, Jonghun and Kim, Mansu and Park, Hyunjin},
-    title     = {Domain Aware Multi-Task Pre-Training of 3D Swin Transformer for Brain MRI},
-    booktitle = {Proceedings of the Asian Conference on Computer Vision (ACCV)},
-    month     = {December},
-    year      = {2024},
-    pages     = {2124-2144}
-}
-```
-
-## Acknowledgment
+J. Kim, M. Kim, and H. Park, "Domain Aware Multi-Task Pre-Training of 3D Swin Transformer for Brain MRI," *ACCV 2024*, pp. 2124–2144. ([arXiv:2410.00410](https://arxiv.org/abs/2410.00410)) — this repository forks [DAMT](https://github.com/jongdory/DAMT); the training pipeline, model, and seven pretext tasks are the original DAMT code, and the only change is `AtlasGuidedMaskGenerator` in `main.py`, which replaces DAMT's random MIM masking with anatomy-aware region masking.
 
 The Swin Transformer backbone comes from [MONAI](https://github.com/Project-MONAI/MONAI)'s SwinUNETR, and the distributed-training utilities from [DINO](https://github.com/facebookresearch/dino) (both already vendored in upstream DAMT). See [NOTICE](NOTICE) for details.
 
@@ -154,4 +122,10 @@ Apache License 2.0 — see [LICENSE](LICENSE).
 
 ## Citation
 
-The CCN 2026 proceedings are not published yet; the BibTeX entry will be added here once they are available.
+```bibtex
+@inproceedings{kimanatomy,
+  title={Anatomy-Aware Masked Image Modeling for Self-Supervised Learning on 3D Brain MRI},
+  author={Kim, Yeonwoo and Lee, Won Hee},
+  booktitle={9th Annual Conference on Cognitive Computational Neuroscience}
+}
+```
