@@ -4,7 +4,7 @@
 
 **Anatomy-Aware Masked Image Modeling for Self-Supervised Learning on 3D Brain MRI**
 
-![Conference](https://img.shields.io/badge/CCN-2026-0A66C2?style=flat-square)&nbsp;
+[![Conference](https://img.shields.io/badge/CCN-2026-0A66C2?style=flat-square)](https://openreview.net/forum?id=pWyo5leiDF)&nbsp;
 [![PyTorch](https://img.shields.io/badge/PyTorch-2.0+-EE4C2C?style=flat-square&logo=pytorch&logoColor=white)](https://pytorch.org/)&nbsp;
 [![Python](https://img.shields.io/badge/Python-3.10+-3776AB?style=flat-square&logo=python&logoColor=white)](https://www.python.org/)&nbsp;
 [![License](https://img.shields.io/badge/License-Apache_2.0-green?style=flat-square)](LICENSE)
