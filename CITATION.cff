@@ -1,0 +1,28 @@
+cff-version: 1.2.0
+message: "If you use this software, please cite the paper below."
+title: "Anatomy-Aware MIM: Anatomy-Aware Masked Image Modeling for Self-Supervised Learning on 3D Brain MRI"
+type: software
+license: Apache-2.0
+repository-code: "https://github.com/dusdnKR/anatomy-aware-mim"
+authors:
+  - family-names: Kim
+    given-names: Yeonwoo
+    affiliation: Kyung Hee University
+  - family-names: Lee
+    given-names: Won Hee
+    affiliation: Kyung Hee University
+preferred-citation:
+  type: conference-paper
+  title: "Anatomy-Aware Masked Image Modeling for Self-Supervised Learning on 3D Brain MRI"
+  authors:
+    - family-names: Kim
+      given-names: Yeonwoo
+      affiliation: Kyung Hee University
+    - family-names: Lee
+      given-names: Won Hee
+      affiliation: Kyung Hee University
+  collection-title: "9th Annual Conference on Cognitive Computational Neuroscience (CCN 2026)"
+  conference:
+    name: "9th Annual Conference on Cognitive Computational Neuroscience (CCN 2026)"
+  year: 2026
+  url: "https://openreview.net/forum?id=pWyo5leiDF"
